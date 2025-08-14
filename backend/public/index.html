@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login to Events App</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
+        .login-container { background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
+        button { background-color: #1a73e8; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #155bb3; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Welcome to Events Calendar</h2>
+        <p>Please log in with your Zoho CRM account to view your events.</p>
+        <button id="loginBtn">Login with Zoho</button>
+    </div>
+
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/login');
+                const data = await response.json();
+                if (data.zohoAuthUrl) {
+                    window.location.href = data.zohoAuthUrl; // Redirect to Zoho for login
+                } else {
+                    alert('Could not get Zoho login URL.');
+                }
+            } catch (error) {
+                console.error('Error initiating Zoho login:', error);
+                alert('An error occurred during login. Please try again.');
+            }
+        });
+
+        // Check for error parameter in URL after redirect
+        const params = new URLSearchParams(window.location.search);
+        const errorMessage = params.get('error');
+        if (errorMessage) {
+            alert(decodeURIComponent(errorMessage));
+        }
+    </script>
+</body>
+</html>

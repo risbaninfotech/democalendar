@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events Calendar</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f0f2f5; }
+        .container { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .event-list { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+        .event-item { border-bottom: 1px dashed #eee; padding: 10px 0; }
+        .event-item:last-child { border-bottom: none; }
+        .event-name { font-weight: bold; }
+        #logoutBtn { background-color: #dc3545; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; float: right; margin-bottom: 10px; }
+        #logoutBtn:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="logoutBtn">Logout</button>
+        <h1>Your Events</h1>
+        <div class="event-list" id="eventList">
+            <p>Loading events...</p>
+        </div>
+    </div>
+
+    <script>
+        async function fetchEvents() {
+            try {
+                const response = await fetch('/api/zoho/master');
+                if (response.ok) {
+                    const data = await response.json();
+                    events = data.data;
+                    const eventListDiv = document.getElementById('eventList');
+                    eventListDiv.innerHTML = '';
+
+                    if (events.length === 0) {
+                        eventListDiv.innerHTML = '<p>No events found for you.</p>';
+                    } else {
+                        events.forEach(event => {
+                            const eventItem = document.createElement('div');
+                            eventItem.classList.add('event-item');
+                            eventItem.innerHTML = `
+                                <div class="event-name">${event.Event_Name}</div>
+                                <div><strong>Type:</strong> ${event.Event_Type || 'N/A'}</div>
+                                <div><strong>Date:</strong> ${event.Event_Date || 'N/A'}</div>
+                                <div><strong>Venue:</strong> ${event.Venue || 'N/A'}</div>
+                                <div><strong>Artists:</strong> ${event.Artists || 'N/A'}</div>
+                            `;
+                            eventListDiv.appendChild(eventItem);
+                        });
+                    }
+                } else if (response.status === 401) {
+                    alert('Session expired or not authenticated. Please log in again.');
+                    window.location.href = '/'; // Redirect to login page
+                } else {
+                    const errorData = await response.json();
+                    alert('Error fetching events: ' + (errorData.message || 'Unknown error'));
+                    console.error('Error response:', errorData);
+                }
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                alert('An error occurred while fetching events.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchEvents);
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/logout');
+                const data = await response.json();
+                alert(data.message);
+                window.location.href = '/'; // Redirect to login page
+            } catch (error) {
+                console.error('Error during logout:', error);
+                alert('An error occurred during logout.');
+            }
+        });
+    </script>
+</body>
+</html>
