@@ -28,6 +28,8 @@ import { NotificationService } from '../services/notification.service';
 import listPlugin from '@fullcalendar/list';
 import { NotificationComponent } from '../notification/notification.component';
 import { RouterLink, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service'; // Import AuthService
+
 
 // Define different calendar view types as constants
 enum CalendarView {
@@ -52,6 +54,7 @@ interface ViewDisplayNames {
     FormsModule,
     NotificationComponent,
     RouterLink,
+    
   ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css'],
@@ -216,6 +219,7 @@ export class CalendarComponent implements AfterViewInit {
     private eventService: EventService,
     private notificationService: NotificationService,
     private router: Router,
+    private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -238,13 +242,16 @@ export class CalendarComponent implements AfterViewInit {
           this.allCities = response.data.city.filter((c) => c.name) || [];
 
           // Log the data to the console for debugging
-          console.log('Fetched Artists:', this.allArtists);
+          // console.log('Fetched Artists:', this.allArtists);
 
           // Manually trigger change detection to update the view
           this.cdr.detectChanges();
         }
       },
       error: (err: HttpErrorResponse) => {
+        if (err.status === 401) {
+          this.router.navigate(['/login']);
+        }
         console.error('Failed to load Zoho master data:', err);
         this.notificationService.error(
           'Master Data Error',
@@ -264,8 +271,17 @@ export class CalendarComponent implements AfterViewInit {
 
   logout(): void {
     this.closeSettings();
-    console.log('Logging out...');
-    this.router.navigate(['/login']);
+    this.authService.logout().subscribe({
+      next: () => {
+        this.notificationService.success('Logged Out', 'You have been successfully logged out.');
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error('Logout failed:', err);
+        this.notificationService.error('Logout Failed', 'Could not log out properly, but redirecting.');
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   private fetchStatuses(): void {
@@ -553,6 +569,9 @@ export class CalendarComponent implements AfterViewInit {
         this.isCalendarLoading = false; // Hide loader on success
       },
       error: (error) => {
+        if (error.status === 401) {
+          this.router.navigate(['/login']);
+        }
         console.error('Error loading events:', error);
         this.notificationService.error(
           'Failed to Load Events',
