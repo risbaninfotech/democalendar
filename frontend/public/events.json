@@ -1,0 +1,189 @@
+{
+  "events": [
+    {
+      "id": "1",
+      "title": "Team Meeting",
+      "start": "2025-01-15T09:00:00",
+      "end": "2025-01-15T10:30:00",
+      "description": "Weekly team sync and project updates",
+      "color": "#3788d8",
+      "category": "meeting",
+      "location": "Conference Room A",
+      "attendees": ["john@example.com", "jane@example.com"]
+    },
+    {
+      "id": "2",
+      "title": "Product Launch",
+      "start": "2025-01-20",
+      "end": "2025-01-22",
+      "description": "Launch event for new product line",
+      "color": "#ff6b6b",
+      "category": "event",
+      "location": "Main Auditorium",
+      "allDay": true
+    },
+    {
+      "id": "3",
+      "title": "Client Presentation",
+      "start": "2025-01-25T14:00:00",
+      "end": "2025-01-25T16:00:00",
+      "description": "Quarterly review presentation to key client",
+      "color": "#51cf66",
+      "category": "presentation",
+      "location": "Client Office",
+      "attendees": ["client@company.com", "sales@example.com"]
+    },
+    {
+      "id": "4",
+      "title": "Training Workshop",
+      "start": "2025-02-01T10:00:00",
+      "end": "2025-02-01T17:00:00",
+      "description": "Angular development best practices workshop",
+      "color": "#ffd43b",
+      "category": "training",
+      "location": "Training Room B"
+    },
+    {
+      "id": "5",
+      "title": "Company Retreat",
+      "start": "2025-02-15",
+      "end": "2025-02-17",
+      "description": "Annual company retreat and team building activities",
+      "color": "#ff8cc8",
+      "category": "company",
+      "location": "Mountain Resort",
+      "allDay": true
+    },
+    {
+      "id": "6",
+      "title": "Code Review",
+      "start": "2025-02-28T11:00:00",
+      "end": "2025-02-28T12:00:00",
+      "description": "Sprint code review and technical discussion",
+      "color": "#845ef7",
+      "category": "development",
+      "location": "Dev Room"
+    },
+    {
+      "id": "7",
+      "title": "Monthly Report Due",
+      "start": "2025-03-01",
+      "description": "Submit monthly performance reports",
+      "color": "#fd7e14",
+      "category": "deadline",
+      "allDay": true
+    },
+    {
+      "id": "8",
+      "title": "Sprint Planning",
+      "start": "2025-03-05T09:00:00",
+      "end": "2025-03-05T12:00:00",
+      "description": "Plan next development sprint and assign tasks",
+      "color": "#20c997",
+      "category": "planning",
+      "location": "Scrum Room",
+      "attendees": ["dev-team@example.com"]
+    },
+    {
+      "id": "9",
+      "title": "Customer Feedback Session",
+      "start": "2025-03-10T15:00:00",
+      "end": "2025-03-10T16:30:00",
+      "description": "Gather customer feedback on recent product updates",
+      "color": "#6f42c1",
+      "category": "feedback",
+      "location": "Virtual Meeting"
+    },
+    {
+      "id": "10",
+      "title": "Board Meeting",
+      "start": "2025-03-20T09:00:00",
+      "end": "2025-03-20T11:00:00",
+      "description": "Quarterly board meeting and strategic planning",
+      "color": "#dc3545",
+      "category": "executive",
+      "location": "Boardroom",
+      "attendees": ["board@example.com"]
+    },
+    {
+      "id": "11",
+      "title": "Holiday - Good Friday",
+      "start": "2025-03-29",
+      "description": "Public holiday - office closed",
+      "color": "#6c757d",
+      "category": "holiday",
+      "allDay": true
+    },
+    {
+      "id": "12",
+      "title": "Project Deadline",
+      "start": "2025-04-15",
+      "description": "Final submission for Q1 project deliverables",
+      "color": "#e83e8c",
+      "category": "deadline",
+      "allDay": true
+    },
+    {
+      "id": "13",
+      "title": "Performance Review",
+      "start": "2025-04-20T13:00:00",
+      "end": "2025-04-20T14:00:00",
+      "description": "Quarterly performance review with manager",
+      "color": "#17a2b8",
+      "category": "meeting",
+      "location": "Manager's Office"
+    },
+    {
+      "id": "14",
+      "title": "Tech Conference",
+      "start": "2025-05-15",
+      "end": "2025-05-17",
+      "description": "Annual technology conference and networking event",
+      "color": "#28a745",
+      "category": "event",
+      "location": "Convention Center",
+      "allDay": true
+    },
+    {
+      "id": "15",
+      "title": "System Maintenance",
+      "start": "2025-05-30T02:00:00",
+      "end": "2025-05-30T06:00:00",
+      "description": "Scheduled system maintenance and updates",
+      "color": "#ffc107",
+      "category": "maintenance",
+      "location": "Data Center"
+    },
+    {
+      "id": "16",
+      "title": "Summer Break",
+      "start": "2025-07-01",
+      "end": "2025-07-15",
+      "description": "Company summer break - office closed",
+      "color": "#6c757d",
+      "category": "holiday",
+      "allDay": true
+    },
+    {
+      "id": "17",
+      "title": "Q2 Review Meeting",
+      "start": "2025-07-20T10:00:00",
+      "end": "2025-07-20T12:00:00",
+      "description": "Quarterly business review and planning session",
+      "color": "#dc3545",
+      "category": "executive",
+      "location": "Main Conference Room",
+      "attendees": ["executives@example.com", "department-heads@example.com"]
+    },
+    {
+      "id": "18",
+      "title": "New Employee Orientation",
+      "start": "2025-08-01T09:00:00",
+      "end": "2025-08-01T17:00:00",
+      "description": "Orientation program for new hires",
+      "color": "#ffd43b",
+      "category": "training",
+      "location": "Training Center"
+    }
+  ]
+}
