@@ -209,29 +209,57 @@ export class CalendarComponent implements AfterViewInit {
     dayCellClassNames: this.getDayCellClassNames.bind(this),
     events: [], // Events will be loaded dynamically
 
-    // Hook to customize the inner content of the event (dot + text)
     eventContent: (arg) => {
       const statusColor = arg.event.backgroundColor || '#908081';
       const statusDotHtml = `<span class="fc-event-dot" style="background-color: ${statusColor};"></span>`;
+
       const title = arg.event.title;
       const city = arg.event.extendedProps['city'];
       const venue = arg.event.extendedProps['venue'];
-      let textHtml = `<b>${title} </b>`;
-      const locationParts = [];
-      if (city) locationParts.push(city);
-      if (venue) locationParts.push(venue);
-      const locationString = locationParts.join(', ');
-      if (locationString) {
-        textHtml += `<i>${locationString}</i>`;
+
+      const displayParts = [];
+
+      if (!this.selectedArtist && title) {
+        displayParts.push(`<b>${title}</b>`);
       }
+
+      if (!this.selectedVenue && venue) {
+        displayParts.push(venue);
+      }
+
+      if (!this.selectedCity && city) {
+        displayParts.push(city);
+      }
+
+      let textHtml = '';
+      if (displayParts.length === 0) {
+        const eventName = arg.event.extendedProps['eventName'];
+        textHtml = `<b>${eventName || title || 'Event'}</b>`;
+      } else {
+        const boldParts = displayParts.filter((part) => part.includes('<b>'));
+        const regularParts = displayParts.filter(
+          (part) => !part.includes('<b>')
+        );
+
+        if (boldParts.length > 0) {
+          textHtml = boldParts.join(', ');
+          if (regularParts.length > 0) {
+            textHtml += ` <i>${regularParts.join(', ')}</i>`;
+          }
+        } else {
+          textHtml = `<i>${regularParts.join(', ')}</i>`;
+        }
+      }
+
       const finalHtml = `
-        <div style="display: flex; align-items: flex-start; overflow: hidden;">
-          ${statusDotHtml}
-          <div class="fc-event-title" style="white-space: normal; margin-left: 6px;">
-            ${textHtml}
-          </div>
-        </div>
-      `;
+    <div style="display: flex; align-items: flex-start; overflow: hidden;">
+      ${statusDotHtml}
+      <div class="fc-event-title" style="white-space: normal; margin-left: 6px;">
+        ${textHtml}
+      </div>
+    </div>
+  `;
+
       return { html: finalHtml };
     },
 
@@ -692,11 +720,12 @@ export class CalendarComponent implements AfterViewInit {
         (event) => event.extendedProps?.['city'] === this.selectedCity
       );
     }
-    const calendarApi = this.calendarApi;
 
+    const calendarApi = this.calendarApi;
     if (calendarApi) {
       calendarApi.removeAllEvents();
       calendarApi.addEventSource(filteredEvents);
+      this.cdr.detectChanges();
     }
   }
 

@@ -230,24 +230,22 @@
             <h4>Promoter Details</h4>
             <div class="form-row">
               <div class="form-group full-width">
-                <label for="promoterName">Promoter Name *</label>
-                <select id="promoterName" name="promoterName" [(ngModel)]="newEvent.promoterName" required>
-                  <option value="" disabled>Select Promoter</option>
-                  <option *ngFor="let promoter of allPromoters" [value]="promoter.name">{{ promoter.name }}</option>
-                </select>
+                <label for="promoterName">Promoter Name </label>
+                  <input type="text" id="promoterName" [(ngModel)]="newEvent.promoterName" name="promoterName"
+                  placeholder="Enter promoter name" >
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="promoterPhone">Promoter Phone *</label>
+                <label for="promoterPhone">Promoter Phone </label>
                 <input type="tel" id="promoterPhone" [(ngModel)]="newEvent.promoterPhone" name="promoterPhone"
-                  placeholder="Enter promoter phone" required>
+                  placeholder="Enter promoter phone" >
               </div>
               <div class="form-group">
-                <label for="promoterEmail">Promoter Email *</label>
+                <label for="promoterEmail">Promoter Email </label>
                 <input type="email" id="promoterEmail" [(ngModel)]="newEvent.promoterEmail" name="promoterEmail"
-                  placeholder="Enter promoter email" required>
+                  placeholder="Enter promoter email" >
               </div>
             </div>
           </div>
