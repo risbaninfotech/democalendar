@@ -30,7 +30,6 @@ import { NotificationComponent } from '../notification/notification.component';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service'; // Import AuthService
 
-
 // Define different calendar view types as constants
 enum CalendarView {
   MONTH = 'dayGridMonth',
@@ -54,7 +53,6 @@ interface ViewDisplayNames {
     FormsModule,
     NotificationComponent,
     RouterLink,
-    
   ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css'],
@@ -210,6 +208,36 @@ export class CalendarComponent implements AfterViewInit {
     },
     dayCellClassNames: this.getDayCellClassNames.bind(this),
     events: [], // Events will be loaded dynamically
+
+    // Hook to customize the inner content of the event (dot + text)
+    eventContent: (arg) => {
+      const statusColor = arg.event.backgroundColor || '#908081';
+      const statusDotHtml = `<span class="fc-event-dot" style="background-color: ${statusColor};"></span>`;
+      const title = arg.event.title;
+      const city = arg.event.extendedProps['city'];
+      const venue = arg.event.extendedProps['venue'];
+      let textHtml = `<b>${title} </b>`;
+      const locationParts = [];
+      if (city) locationParts.push(city);
+      if (venue) locationParts.push(venue);
+      const locationString = locationParts.join(', ');
+      if (locationString) {
+        textHtml += `<i>${locationString}</i>`;
+      }
+      const finalHtml = `
+        <div style="display: flex; align-items: flex-start; overflow: hidden;">
+          ${statusDotHtml}
+          <div class="fc-event-title" style="white-space: normal; margin-left: 6px;">
+            ${textHtml}
+          </div>
+        </div>
+      `;
+      return { html: finalHtml };
+    },
+
+    // Hook to style the main container of the event (background color)
+    eventDidMount: this.handleEventDidMount.bind(this),
+
     eventClick: this.handleEventClick.bind(this),
   };
 
@@ -240,11 +268,6 @@ export class CalendarComponent implements AfterViewInit {
           this.allPromoters = response.data.promoter || [];
           this.allVenues = response.data.venue || [];
           this.allCities = response.data.city.filter((c) => c.name) || [];
-
-          // Log the data to the console for debugging
-          // console.log('Fetched Artists:', this.allArtists);
-
-          // Manually trigger change detection to update the view
           this.cdr.detectChanges();
         }
       },
@@ -273,14 +296,20 @@ export class CalendarComponent implements AfterViewInit {
     this.closeSettings();
     this.authService.logout().subscribe({
       next: () => {
-        this.notificationService.success('Logged Out', 'You have been successfully logged out.');
+        this.notificationService.success(
+          'Logged Out',
+          'You have been successfully logged out.'
+        );
         this.router.navigate(['/login']);
       },
       error: (err) => {
         console.error('Logout failed:', err);
-        this.notificationService.error('Logout Failed', 'Could not log out properly, but redirecting.');
+        this.notificationService.error(
+          'Logout Failed',
+          'Could not log out properly, but redirecting.'
+        );
         this.router.navigate(['/login']);
-      }
+      },
     });
   }
 
@@ -327,31 +356,21 @@ export class CalendarComponent implements AfterViewInit {
     this.isFormPopupVisible = true;
   }
 
-  /**
-   * Handles the change event of the venue dropdown in the form.
-   * Automatically populates the city field based on the selected venue.
-   */
   onVenueChange(): void {
     const selectedVenueName = this.newEvent.venue;
     if (!selectedVenueName) {
       return;
     }
-
-    // Find the selected venue object to get its ID
     const selectedVenueObject = this.allVenues.find(
       (v) => v.name === selectedVenueName
     );
     if (!selectedVenueObject) {
       return;
     }
-
-    // Find the city that has the same ID as the selected venue
     const correspondingCity = this.allCities.find(
       (c) => c.id === selectedVenueObject.id
     );
-
     if (correspondingCity) {
-      // Update the form model with the corresponding city name
       this.newEvent.city = correspondingCity.name;
     }
   }
@@ -377,7 +396,7 @@ export class CalendarComponent implements AfterViewInit {
 
     this.newEvent = {
       eventName: event.extendedProps.eventName || '',
-      artistName: event.title, // In the service, artist_name is mapped to title
+      artistName: event.title,
       artistType: event.extendedProps.artistType || '',
       city: event.extendedProps.city || '',
       status: matchedStatus ? matchedStatus._id : '',
@@ -413,6 +432,16 @@ export class CalendarComponent implements AfterViewInit {
       color: arg.event.backgroundColor || arg.event.extendedProps?.color,
       extendedProps: arg.event.extendedProps,
     };
+  }
+
+  // Styles each event's container after it renders
+  handleEventDidMount(arg: any): void {
+    const bgColor = arg.event.backgroundColor;
+    if (bgColor) {
+      arg.el.style.backgroundColor = bgColor;
+      arg.el.style.borderColor = bgColor;
+      arg.el.style.color = this.getTextColorForBg(bgColor);
+    }
   }
 
   closeEventPopup(): void {
@@ -529,8 +558,6 @@ export class CalendarComponent implements AfterViewInit {
       return;
     }
 
-    // NOTE: The native `confirm()` dialog is avoided.
-    // A custom modal component should be implemented for a better user experience.
     this.eventService.deleteEvent(eventId).subscribe({
       next: (response) => {
         if (response.code === 200) {
@@ -559,14 +586,14 @@ export class CalendarComponent implements AfterViewInit {
 
   private loadEvents(): void {
     if (!this.isBrowser) return;
-    this.isCalendarLoading = true; // Show loader
+    this.isCalendarLoading = true;
     this.eventService.getCalendarEvents().subscribe({
       next: (events) => {
         this.processAndRenderEvents(events);
         this.scheduleUpdate(() => {
           this.updateCurrentMonthTitle();
         });
-        this.isCalendarLoading = false; // Hide loader on success
+        this.isCalendarLoading = false;
       },
       error: (error) => {
         if (error.status === 401) {
@@ -577,7 +604,7 @@ export class CalendarComponent implements AfterViewInit {
           'Failed to Load Events',
           'Unable to load calendar events. Please refresh the page and try again.'
         );
-        this.isCalendarLoading = false; // Hide loader on error
+        this.isCalendarLoading = false;
       },
     });
   }
@@ -621,11 +648,11 @@ export class CalendarComponent implements AfterViewInit {
     events.forEach((event) => {
       if (event.title) titles.add(event.title);
       if (event.extendedProps?.['venue'])
-        venues.add(event.extendedProps?.['venue']);
+        venues.add(event.extendedProps['venue']);
       if (event.extendedProps?.['promoterName'])
-        promoterNames.add(event.extendedProps?.['promoterName']);
+        promoterNames.add(event.extendedProps['promoterName']);
       if (event.extendedProps?.['city'])
-        cities.add(event.extendedProps?.['city']);
+        cities.add(event.extendedProps['city']);
     });
 
     this.allEventTitles = [...titles].sort();
@@ -665,7 +692,12 @@ export class CalendarComponent implements AfterViewInit {
         (event) => event.extendedProps?.['city'] === this.selectedCity
       );
     }
-    this.calendarOptions.events = filteredEvents;
+    const calendarApi = this.calendarApi;
+
+    if (calendarApi) {
+      calendarApi.removeAllEvents();
+      calendarApi.addEventSource(filteredEvents);
+    }
   }
 
   private get calendarApi(): CalendarApi | null {
