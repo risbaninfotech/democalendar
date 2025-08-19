@@ -8,8 +8,8 @@
 }
 
 .calendar-container {
-  max-width: 1100px;
-  width: 80%;
+  /* max-width: 1100px; */
+  width: 100%;
   margin: 0 auto;
   padding: 1rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -90,7 +90,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 1.5rem; /* Space between major groups */
   padding-top: 1rem;
   margin-top: 1rem;
@@ -119,6 +119,7 @@
 .control-group-labeled {
   display: flex;
   flex-direction: column;
+  
   gap: 0.25rem;
 }
 
