@@ -27,7 +27,7 @@
     <script>
         async function fetchEvents() {
             try {
-                const response = await fetch('/api/zoho/master');
+                const response = await fetch('/api/events/all');
                 if (response.ok) {
                     const data = await response.json();
                     events = data.data;
