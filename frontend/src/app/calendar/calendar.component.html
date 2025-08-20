@@ -1,0 +1,267 @@
+<!-- calendar.component.html -->
+<div class="calendar-container">
+  <!-- Notification Component -->
+  <app-notifications></app-notifications>
+  <!-- Loading overlay -->
+  <div *ngIf="isCalendarLoading && isBrowser" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading calendar...</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-top">
+      <div class="title-view">
+        <div class="calendar-title">{{ currentMonthTitle }}</div>
+        <div class="calendar-view">{{ currentViewName }} View</div>
+      </div>
+
+      <div class="top-right-controls">
+        <div class="control-group-labeled">
+          <span class="group-label">Calendar View</span>
+          <div class="view-select-wrapper">
+            <select class="view-select" [(ngModel)]="currentViewValue" (change)="onViewChange($event)">
+              <option [value]="'dayGridMonth'">Month</option>
+              <option [value]="'timeGridWeek'">Week</option>
+              <option [value]="'timeGridDay'">Day</option>
+              <option [value]="'quarterView'">Quarter</option>
+              <option [value]="'yearView'">Year</option>
+              <option [value]="'nineMonthsListView'">9-Month List</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-add" (click)="openAddEventForm()" [disabled]="isCalendarLoading">
+          Add Event
+        </button>
+        <div class="settings-dropdown">
+          <button class="nav-btn btn-icon" (click)="toggleSettings()">
+            &#9881; </button>
+          <div class="settings-dropdown-menu" *ngIf="isSettingsOpen">
+            <a class="dropdown-item" routerLink="/manage-statuses" (click)="closeSettings()">Manage Statuses</a>
+            <button class="dropdown-item" (click)="logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar-bottom">
+      <div class="control-group-inline">
+        <button class="nav-btn" (click)="goToPrev()" [disabled]="isCalendarLoading">&#8249; Prev</button>
+        <button class="nav-btn" (click)="goToToday()" [disabled]="isCalendarLoading">Today</button>
+        <button class="nav-btn" (click)="goToNext()" [disabled]="isCalendarLoading">Next &#8250;</button>
+      </div>
+
+      <div class="control-group-labeled">
+        <span class="group-label">Filters</span>
+        <div class="control-group-inline">
+          <div class="view-select-wrapper">
+            <select class="view-select" [(ngModel)]="selectedArtist" (change)="onFilterChange()">
+              <option value="">All Artists</option>
+              <option *ngFor="let title of allArtists" [value]="title.name">{{ title.name }}</option>
+            </select>
+          </div>
+          <div class="view-select-wrapper">
+            <select class="view-select" [(ngModel)]="selectedVenue" (change)="onFilterChange()">
+              <option value="">All Venues</option>
+              <option *ngFor="let venue of allVenues" [value]="venue.name">{{ venue.name }}</option>
+            </select>
+          </div>
+          <div class="view-select-wrapper">
+            <select class="view-select" [(ngModel)]="selectedPromoter" (change)="onFilterChange()">
+              <option value="">All Promoters</option>
+              <option *ngFor="let promoters of allPromoters" [value]="promoters.name">{{ promoters.name }}</option>
+            </select>
+          </div>
+          <div class="view-select-wrapper">
+            <select class="view-select" [(ngModel)]="selectedCity" (change)="onFilterChange()">
+              <option value="">All Cities</option>
+              <option *ngFor="let city of allCities" [value]="city.name">{{ city.name }}</option>
+            </select>
+          </div>
+          <button class="nav-btn" (click)="clearFilters()"
+            [disabled]="!selectedArtist && !selectedVenue && !selectedPromoter && !selectedCity">
+            Clear
+          </button>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+  <!-- Calendar -->
+  <div [class.calendar-loading]="isCalendarLoading" *ngIf="isBrowser">
+    <full-calendar #calendarRef [options]="calendarOptions" (datesSet)="onDatesSet()"></full-calendar>
+  </div>
+
+  <!-- SSR placeholder -->
+  <div *ngIf="!isBrowser" class="ssr-placeholder">
+    <p>Loading calendar...</p>
+  </div>
+
+  <!-- Event Details Popup -->
+  <div class="event-popup" *ngIf="selectedEvent" (click)="closeEventPopup()">
+    <div class="popup-content" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3>{{ selectedEvent.extendedProps?.eventName }}</h3>
+        <button type="button" class="close-btn" (click)="closeEventPopup()">&times;</button>
+      </div>
+      <div class="event-details">
+        <p>🎤 <strong>Artist:</strong> {{ selectedEvent.title }}</p>
+        <p>🗓️ <strong>Starts:</strong> {{ selectedEvent.start | date: "full" }}</p>
+        <p *ngIf="selectedEvent.end">🗓️ <strong>Ends:</strong> {{ selectedEvent.end | date: 'full' }}</p>
+        <div class="status-display">
+          <p>📊 <strong>Status:</strong></p>
+          <span class="status-dot" [style.backgroundColor]="selectedEvent?.color || '#908081'"></span>
+          <span>{{ selectedEvent.extendedProps?.status || 'Not Set' }}</span>
+        </div>
+        <p>🎭 <strong>Artist Type:</strong> {{ selectedEvent.extendedProps?.artistType }}</p>
+        <p>📍 <strong>City:</strong> {{ selectedEvent.extendedProps?.city }}
+        </p>
+        <p>🏟️ <strong>Venue:</strong> {{ selectedEvent.extendedProps?.venue }}</p>
+        <p>💲 <strong>Artist Fee:</strong> {{ selectedEvent.extendedProps?.artistFee | currency:'USD':'symbol' }}</p>
+        <hr>
+        <h4>Promoter Details</h4>
+        <p>👤 <strong>Name:</strong> {{ selectedEvent.extendedProps?.promoterName }}</p>
+        <p>📞 <strong>Phone:</strong> {{ selectedEvent.extendedProps?.promoterPhone }}</p>
+        <p>📧 <strong>Email:</strong> {{ selectedEvent.extendedProps?.promoterEmail }}</p>
+
+
+      </div>
+
+      <div class="popup-footer">
+        <button class="btn btn-edit" (click)="openEditEventForm(selectedEvent)">Edit</button>
+        <button class="btn btn-delete" (click)="deleteEvent(selectedEvent.id)">Delete</button>
+        <button class="btn btn-close" (click)="closeEventPopup()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD/EDIT EVENT FORM POPUP -->
+  <div class="event-popup" *ngIf="isFormPopupVisible" (click)="closeAddEventForm()">
+    <div class="popup-content form-popup" (click)="$event.stopPropagation()">
+      <form (ngSubmit)="onFormSubmit()" #eventForm="ngForm">
+        <div class="popup-header">
+          <h3>{{ isEditMode ? 'Edit Event' : 'Add New Event' }}</h3>
+          <button type="button" class="close-btn" (click)="closeAddEventForm()">&times;</button>
+        </div>
+
+        <div class="form-body">
+          <div class="form-row">
+             <div class="form-group full-width">
+               <label for="eventName">Event Name *</label>
+               <input type="text" id="eventName" [(ngModel)]="newEvent.eventName" name="eventName" placeholder="Enter the name of the event" required>
+             </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="startDate">Start Date *</label>
+              <input type="date" id="startDate" [(ngModel)]="newEvent.startDate" name="startDate" required>
+            </div>
+            <div class="form-group">
+              <label for="startTime">Start Time *</label>
+              <input type="time" id="startTime" [(ngModel)]="newEvent.startTime" name="startTime" required>
+            </div>
+          </div>
+           <div class="form-row">
+            <div class="form-group">
+              <label for="endDate">End Date *</label>
+              <input type="date" id="endDate" [(ngModel)]="newEvent.endDate" name="endDate" required>
+            </div>
+            <div class="form-group">
+              <label for="endTime">End Time *</label>
+              <input type="time" id="endTime" [(ngModel)]="newEvent.endTime" name="endTime" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="artistName">Artist Name *</label>
+               <select id="artistName" name="artistName" [(ngModel)]="newEvent.artistName" required>
+                 <option value="" disabled>Select Artist</option>
+                 <option *ngFor="let artist of allArtists" [value]="artist.name">{{ artist.name }}</option>
+               </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="artistType">Artist Type *</label>
+              <select id="artistType" [(ngModel)]="newEvent.artistType" name="artistType" required>
+                <option value="" disabled>Select Artist Type</option>
+                <option value="Management & Booking">Management & Booking</option>
+                <option value="Booking (Only)">Booking (Only)</option>
+                <option value="Promotor">Promotor</option>
+              </select>
+            </div>
+             <div class="form-group">
+              <label for="artistFee">Artist Fee *</label>
+              <input type="number" id="artistFee" [(ngModel)]="newEvent.artistFee" name="artistFee" placeholder="Enter artist fee" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="status">Status *</label>
+              <select id="event-status" class="form-control" [(ngModel)]="newEvent.status" name="status" required>
+                <option value="" disabled>Select Status</option>
+                <option *ngFor="let status of availableStatuses" [value]="status._id"
+                  [style.backgroundColor]="status.color" [style.color]="getTextColorForBg(status.color)">
+                  {{ status.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+                <label for="venue">Venue *</label>
+                <select id="venue" name="venue" [(ngModel)]="newEvent.venue" (change)="onVenueChange()" required>
+                  <option value="" disabled>Select Venue</option>
+                  <option *ngFor="let venue of allVenues" [value]="venue.name">{{ venue.name }}</option>
+                </select>
+            </div>
+            <div class="form-group">
+              <label for="city">City *</label>
+               <input type="text" id="city" name="city" [(ngModel)]="newEvent.city" required readonly>
+            </div>
+          </div>
+          <div class="form-section">
+            <h4>Promoter Details</h4>
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="promoterName">Promoter Name *</label>
+                <select id="promoterName" name="promoterName" [(ngModel)]="newEvent.promoterName" required>
+                  <option value="" disabled>Select Promoter</option>
+                  <option *ngFor="let promoter of allPromoters" [value]="promoter.name">{{ promoter.name }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="promoterPhone">Promoter Phone *</label>
+                <input type="tel" id="promoterPhone" [(ngModel)]="newEvent.promoterPhone" name="promoterPhone"
+                  placeholder="Enter promoter phone" required>
+              </div>
+              <div class="form-group">
+                <label for="promoterEmail">Promoter Email *</label>
+                <input type="email" id="promoterEmail" [(ngModel)]="newEvent.promoterEmail" name="promoterEmail"
+                  placeholder="Enter promoter email" required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="popup-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="!eventForm.form.valid">
+            {{ isEditMode ? 'Update Event' : 'Save Event' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="closeAddEventForm()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

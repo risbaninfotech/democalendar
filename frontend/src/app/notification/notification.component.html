@@ -1,0 +1,35 @@
+<div class="notification-container">
+      <div 
+        *ngFor="let notification of notifications; trackBy: trackByFn" 
+        class="notification"
+        [ngClass]="'notification-' + notification.type"
+      >
+        <div class="notification-icon">
+          <ng-container [ngSwitch]="notification.type">
+            <span *ngSwitchCase="'success'">✓</span>
+            <span *ngSwitchCase="'error'">✕</span>
+            <span *ngSwitchCase="'warning'">⚠</span>
+            <span *ngSwitchCase="'info'">ℹ</span>
+          </ng-container>
+        </div>
+        
+        <div class="notification-content">
+          <div class="notification-title">{{ notification.title }}</div>
+          <div *ngIf="notification.message" class="notification-message">
+            {{ notification.message }}
+          </div>
+        </div>
+        
+        <button 
+          *ngIf="notification.showClose"
+          class="notification-close"
+          (click)="removeNotification(notification.id)"
+          type="button"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+
+
+    

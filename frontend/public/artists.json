@@ -1,0 +1,164 @@
+{
+  "events": [
+  {
+    "title": "DJ Astra",
+    "start": "2025-08-15T20:00:00Z",
+    "end": "2025-08-15T23:00:00Z",
+    "color": "#28a745",
+    "extendedProps": {
+      "artistType": "DJ",
+      "city": "Mumbai",
+      "venue": "Aura Nightclub",
+      "artistFee": 75000,
+      "promoterName": "Rohan Mehta",
+      "promoterPhone": "9876543210",
+      "promoterEmail": "rohan.mehta@events.com",
+      "status": "Confirmed"
+    }
+  },
+  {
+    "title": "The Crimson Tides",
+    "start": "2025-09-05T19:30:00Z",
+    "end": "2025-09-05T22:30:00Z",
+    "color": "#34c759",
+    "extendedProps": {
+      "artistType": "Live Band",
+      "city": "Bangalore",
+      "venue": "The Humming Tree",
+      "artistFee": 120000,
+      "promoterName": "Priya Singh",
+      "promoterPhone": "8765432109",
+      "promoterEmail": "priya.s@soundwave.in",
+      "status": "Confirmed"
+    }
+  },
+  {
+    "title": "Anjali Rao",
+    "start": "2025-09-20T21:00:00Z",
+    "end": "2025-09-21T00:00:00Z",
+    "color": "#ffc107",
+    "extendedProps": {
+      "artistType": "Singer",
+      "city": "Delhi",
+      "venue": "Glocal Junction",
+      "artistFee": 95000,
+      "promoterName": "Vikram Desai",
+      "promoterPhone": "7654321098",
+      "promoterEmail": "vikram@starlightents.com",
+      "status": "Pending"
+    }
+  },
+  {
+    "title": "Acoustic Echoes",
+    "start": "2025-10-10T18:00:00Z",
+    "end": "2025-10-10T21:00:00Z",
+    "color": "#007bff",
+    "extendedProps": {
+      "artistType": "Acoustic Duo",
+      "city": "Pune",
+      "venue": "High Spirits Cafe",
+      "artistFee": 50000,
+      "promoterName": "Sneha Patil",
+      "promoterPhone": "9123456780",
+      "promoterEmail": "sneha.p@livegigs.co",
+      "status": "Completed"
+    }
+  },
+  {
+    "title": "Techno Wizard",
+    "start": "2025-10-25T22:00:00Z",
+    "end": "2025-10-26T01:00:00Z",
+    "color": "#198754",
+    "extendedProps": {
+      "artistType": "DJ",
+      "city": "Goa",
+      "venue": "Club Titos",
+      "artistFee": 150000,
+      "promoterName": "Marco Fernandes",
+      "promoterPhone": "8901234567",
+      "promoterEmail": "marco@goaevents.net",
+      "status": "Confirmed"
+    }
+  },
+  {
+    "title": "Laughing Hyenas",
+    "start": "2025-11-01T20:30:00Z",
+    "end": "2025-11-01T23:30:00Z",
+    "color": "#20c997",
+    "extendedProps": {
+      "artistType": "Comedy Troupe",
+      "city": "Hyderabad",
+      "venue": "Heart Cup Coffee",
+      "artistFee": 80000,
+      "promoterName": "Arjun Reddy",
+      "promoterPhone": "7890123456",
+      "promoterEmail": "arjun.r@comedycentral.in",
+      "status": "Confirmed"
+    }
+  },
+  {
+    "title": "Maya Krishnan",
+    "start": "2025-11-15T19:00:00Z",
+    "end": "2025-11-15T22:00:00Z",
+    "color": "#dc3545",
+    "extendedProps": {
+      "artistType": "Classical Singer",
+      "city": "Chennai",
+      "venue": "The Music Academy",
+      "artistFee": 110000,
+      "promoterName": "Lakshmi Iyer",
+      "promoterPhone": "9012345678",
+      "promoterEmail": "lakshmi.iyer@culturefest.org",
+      "status": "Cancelled"
+    }
+  },
+  {
+    "title": "Indie Roots",
+    "start": "2025-12-05T21:00:00Z",
+    "end": "2025-12-06T00:00:00Z",
+    "color": "#fd7e14",
+    "extendedProps": {
+      "artistType": "Live Band",
+      "city": "Kolkata",
+      "venue": "Someplace Else Pub",
+      "artistFee": 90000,
+      "promoterName": "Amit Banerjee",
+      "promoterPhone": "8123456789",
+      "promoterEmail": "amit.b@rockon.com",
+      "status": "Pending"
+    }
+  },
+  {
+    "title": "DJ Frost",
+    "start": "2025-12-24T23:00:00Z",
+    "end": "2025-12-25T02:00:00Z",
+    "color": "#40c057",
+    "extendedProps": {
+      "artistType": "DJ",
+      "city": "Manali",
+      "venue": "The Lazy Dog Lounge",
+      "artistFee": 65000,
+      "promoterName": "Karan Thakur",
+      "promoterPhone": "7234567890",
+      "promoterEmail": "karan@mountainbeats.com",
+      "status": "Confirmed"
+    }
+  },
+  {
+    "title": "Starlight Symphony",
+    "start": "2025-12-31T20:00:00Z",
+    "end": "2025-12-31T23:00:00Z",
+    "color": "#0d6efd",
+    "extendedProps": {
+      "artistType": "Orchestra",
+      "city": "Jaipur",
+      "venue": "Amber Fort",
+      "artistFee": 250000,
+      "promoterName": "Raj Singh",
+      "promoterPhone": "9345678901",
+      "promoterEmail": "raj.s@royalproductions.in",
+      "status": "Confirmed"
+    }
+  }
+]
+}

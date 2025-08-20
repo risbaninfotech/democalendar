@@ -1,0 +1,60 @@
+<div class="status-management-container">
+  <app-notifications></app-notifications>
+  <div class="header">
+    <div class="title-view">
+      <h1 class="header-title">Manage Event Statuses</h1>
+      <div class="header-subtitle">Settings</div>
+    </div>
+    <div class="right-controls">
+      <a routerLink="/calendar" class="btn btn-secondary">← Back to Calendar</a>
+    </div>
+  </div>
+
+  <div class="form-section card">
+    <h2>{{ isEditMode ? 'Edit Status' : 'Add New Status' }}</h2>
+    <form (ngSubmit)="onFormSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="statusName">Status Name</label>
+          <input type="text" id="statusName" [(ngModel)]="currentStatus.name" name="statusName"
+            placeholder="e.g., Confirmed, Tentative" required>
+        </div>
+        <div class="form-group">
+          <label for="statusColor">Color</label>
+          <input type="color" id="statusColor" [(ngModel)]="currentStatus.color" name="statusColor" required>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Update Status' : 'Save Status' }}</button>
+        <button type="button" class="btn btn-secondary" (click)="resetForm()" *ngIf="isEditMode">Cancel Edit</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="list-section card">
+    <h2>Existing Statuses</h2>
+    <div *ngIf="statuses.length === 0" class="no-data">No statuses found. Add one using the form above.</div>
+    <table *ngIf="statuses.length > 0" class="status-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Color</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let status of statuses">
+          <td>{{ status.name }}</td>
+          <td>
+            <span class="color-preview" [style.backgroundColor]="status.color"></span>
+            {{ status.color }}
+          </td>
+          <td class="action-buttons">
+            <button class="btn-icon btn-edit" (click)="editStatus(status)" title="Edit">✏️</button>
+            <button class="btn-icon btn-delete" (click)="deleteStatus(status._id)" title="Delete">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
