@@ -76,6 +76,7 @@ export class CalendarComponent implements AfterViewInit {
   allPromoters: ZohoMasterDataItem[] = [];
   allVenues: ZohoMasterDataItem[] = [];
   allCities: ZohoMasterDataItem[] = [];
+  combinedPromoters: ZohoMasterDataItem[] = [];
 
   // --- Data for Toolbar Filters ---
   selectedArtist: string = '';
@@ -100,6 +101,30 @@ export class CalendarComponent implements AfterViewInit {
     this.applyFilters();
   }
 
+  private updateCombinedPromoters(): void {
+    const promoterMap = new Map<string, ZohoMasterDataItem>();
+
+    // 1. Add promoters from the Zoho master list
+    this.allPromoters.forEach(promoter => {
+      if (promoter.name) {
+        promoterMap.set(promoter.name, promoter);
+      }
+    });
+
+    // 2. Add unique promoter names from existing Mongo events
+    this.allPromoterNames.forEach(name => {
+      if (name && !promoterMap.has(name)) {
+        // Create a consistent object structure for the dropdown
+        promoterMap.set(name, { id: name, name: name });
+      }
+    });
+
+    // 3. Convert the map back to an array and sort it alphabetically
+    this.combinedPromoters = Array.from(promoterMap.values())
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+
   // --- State for Popups ---
   isFormPopupVisible = false;
   isEditMode = false;
@@ -108,7 +133,9 @@ export class CalendarComponent implements AfterViewInit {
 
   // --- Model for the "Add/Edit Event" Form, aligned with EventData interface ---
   newEvent: EventData = {
+    id:"",
     eventName: '',
+    source:'',
     artistName: '',
     artistType: '',
     status: '',
@@ -136,7 +163,7 @@ export class CalendarComponent implements AfterViewInit {
   private readonly QUARTER_CONFIG = {
     MONTHS_IN_QUARTER: 9,
     QUARTER_DURATION: { months: 9 },
-    MAX_COLUMNS: 9,
+    MAX_COLUMNS: 3,
     multiMonthMinWidth: 300,
     fixedWeekCount: false,
     showNonCurrentDates: true,
@@ -295,7 +322,20 @@ export class CalendarComponent implements AfterViewInit {
           this.allArtists = response.data.artist || [];
           this.allPromoters = response.data.promoter || [];
           this.allVenues = response.data.venue || [];
-          this.allCities = response.data.city.filter((c) => c.name) || [];
+          // this.allCities = response.data.city.filter((c) => c.name) || [];
+          const uniqueCitiesMap = new Map<string, ZohoMasterDataItem>();
+          if (response.data.city) {
+            response.data.city
+              .filter((c) => c.name)
+              .forEach((city) => {
+                if (!uniqueCitiesMap.has(city.name)) {
+                  uniqueCitiesMap.set(city.name, city);
+                }
+              });
+          }
+          this.allCities = Array.from(uniqueCitiesMap.values());
+          this.updateCombinedPromoters()
+
           this.cdr.detectChanges();
         }
       },
@@ -404,14 +444,14 @@ export class CalendarComponent implements AfterViewInit {
   }
 
   openEditEventForm(event: any): void {
-    const sourceType = event?.extendedProps?.source;
-    if (sourceType && sourceType !== 'mongo') {
-      this.notificationService.info(
-        'Read-only Event',
-        'This event is from an external source and cannot be edited.'
-      );
-      return;
-    }
+    // const sourceType = event?.extendedProps?.source;
+    // if (sourceType && sourceType !== 'mongo') {
+    //   this.notificationService.info(
+    //     'Read-only Event',
+    //     'This event is from an external source and cannot be edited.'
+    //   );
+    //   return;
+    // }
 
     this.isEditMode = true;
     this.currentEditingEventId = this.selectedEvent?.id || event.id;
@@ -423,6 +463,7 @@ export class CalendarComponent implements AfterViewInit {
     );
 
     this.newEvent = {
+      id: event.id || '',
       eventName: event.extendedProps.eventName || '',
       artistName: event.title,
       artistType: event.extendedProps.artistType || '',
@@ -437,6 +478,7 @@ export class CalendarComponent implements AfterViewInit {
       promoterName: event.extendedProps.promoterName || '',
       promoterPhone: event.extendedProps.promoterPhone || '',
       promoterEmail: event.extendedProps.promoterEmail || '',
+      source: event.extendedProps.source || '',
     };
 
     this.isFormPopupVisible = true;
@@ -483,7 +525,6 @@ export class CalendarComponent implements AfterViewInit {
       !this.newEvent.artistName ||
       !this.newEvent.startDate ||
       !this.newEvent.startTime ||
-      !this.newEvent.endDate ||
       !this.newEvent.endTime
     ) {
       this.notificationService.warning(
@@ -545,34 +586,43 @@ export class CalendarComponent implements AfterViewInit {
 
   private updateEvent(): void {
     if (!this.currentEditingEventId) return;
-
     this.eventService
-      .updateEvent(this.currentEditingEventId, this.newEvent)
-      .subscribe({
-        next: (response) => {
-          if (response.code === 200) {
+    .updateEvent(this.currentEditingEventId, this.newEvent)
+    .subscribe({
+      next: (response) => {
+        if (response.code === 200) {
+          if (this.newEvent.source === 'zoho') {
+            this.notificationService.success(
+              'Task Created Successfully!',
+              `Task has been created in Zoho CRM for ${this.newEvent.artistName}'s event.`
+            );
+          } else {
+            // Original message for non-Zoho events
             this.notificationService.success(
               'Event Updated Successfully!',
               `${this.newEvent.artistName}'s event has been updated.`
             );
-            this.clearFilters();
-            this.loadEvents();
-            this.closeAddEventForm();
-          } else {
-            this.notificationService.error(
-              'Failed to Update Event',
-              response.message || 'An unexpected error occurred.'
-            );
           }
-        },
-        error: (error) => {
-          console.error('Error updating event:', error);
+          // --- End of new logic ---
+
+          this.clearFilters();
+          this.loadEvents();
+          this.closeAddEventForm();
+        } else {
           this.notificationService.error(
-            'Update Failed',
-            'Unable to update the event. Please check your connection and try again.'
+            'Failed to Update Event',
+            response.message || 'An unexpected error occurred.'
           );
-        },
-      });
+        }
+      },
+      error: (error) => {
+        console.error('Error updating event:', error);
+        this.notificationService.error(
+          'Update Failed',
+          'Unable to update the event. Please check your connection and try again.'
+        );
+      },
+    });
   }
 
   deleteEvent(eventId: string): void {
@@ -581,7 +631,7 @@ export class CalendarComponent implements AfterViewInit {
     if (sourceType && sourceType !== 'mongo') {
       this.notificationService.info(
         'Read-only',
-        'Cannot delete external events.'
+        'Cannot delete Zoho events.'
       );
       return;
     }
@@ -653,6 +703,7 @@ export class CalendarComponent implements AfterViewInit {
       promoterName: '',
       promoterPhone: '',
       promoterEmail: '',
+      source: '',
     };
   }
 
@@ -687,6 +738,7 @@ export class CalendarComponent implements AfterViewInit {
     this.allVenuesFilter = [...venues].sort();
     this.allPromoterNames = [...promoterNames].sort();
     this.allCityFilter = [...cities].sort();
+    this.updateCombinedPromoters(); // <-- Add the call here
 
     this.applyFilters();
   }

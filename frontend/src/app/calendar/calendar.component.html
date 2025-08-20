@@ -18,32 +18,7 @@
         <div class="calendar-view">{{ currentViewName }} View</div>
       </div>
 
-      <div class="top-right-controls">
-        <div class="control-group-labeled">
-          <span class="group-label">Calendar View</span>
-          <div class="view-select-wrapper">
-            <select class="view-select" [(ngModel)]="currentViewValue" (change)="onViewChange($event)">
-              <option [value]="'dayGridMonth'">Month</option>
-              <option [value]="'timeGridWeek'">Week</option>
-              <option [value]="'timeGridDay'">Day</option>
-              <option [value]="'quarterView'">Quarter</option>
-              <option [value]="'yearView'">Year</option>
-              <!-- <option [value]="'nineMonthsListView'">9-Month List</option> -->
-            </select>
-          </div>
-        </div>
-        <button class="btn btn-add" (click)="openAddEventForm()" [disabled]="isCalendarLoading">
-          Add Event
-        </button>
-        <div class="settings-dropdown">
-          <button class="nav-btn btn-icon" (click)="toggleSettings()">
-            &#9881; </button>
-          <div class="settings-dropdown-menu" *ngIf="isSettingsOpen">
-            <a class="dropdown-item" routerLink="/manage-statuses" (click)="closeSettings()">Manage Statuses</a>
-            <button class="dropdown-item" (click)="logout()">Logout</button>
-          </div>
-        </div>
-      </div>
+      
     </div>
 
     <div class="toolbar-bottom">
@@ -52,6 +27,7 @@
         <button class="nav-btn" (click)="goToToday()" [disabled]="isCalendarLoading">Today</button>
         <button class="nav-btn" (click)="goToNext()" [disabled]="isCalendarLoading">Next &#8250;</button>
       </div>
+
 
       <div class="control-group-labeled">
         <span class="group-label">Filters</span>
@@ -87,6 +63,33 @@
         </div>
       </div>
 
+      <div class="top-right-controls">
+        <div class="control-group-labeled">
+          <span class="group-label">Calendar View</span>
+          <div class="view-select-wrapper">
+            <select class="view-select" [(ngModel)]="currentViewValue" (change)="onViewChange($event)">
+              <option [value]="'dayGridMonth'">Monthly</option>
+              <option [value]="'timeGridWeek'">Weekly</option>
+              <option [value]="'timeGridDay'">Daily</option>
+              <option [value]="'quarterView'">Quarterly</option>
+              <option [value]="'yearView'">Yearly</option>
+              <!-- <option [value]="'nineMonthsListView'">9-Month List</option> -->
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-add" (click)="openAddEventForm()" [disabled]="isCalendarLoading">
+          Add Event
+        </button>
+        <div class="settings-dropdown">
+          <button class="nav-btn btn-icon" (click)="toggleSettings()">
+            &#9881; </button>
+          <div class="settings-dropdown-menu" *ngIf="isSettingsOpen">
+            <a class="dropdown-item" routerLink="/manage-statuses" (click)="closeSettings()">Manage Statuses</a>
+            <button class="dropdown-item" (click)="logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+
 
     </div>
   </div>
@@ -97,9 +100,9 @@
   </div>
 
   <!-- SSR placeholder -->
-  <div *ngIf="!isBrowser" class="ssr-placeholder">
+  <!-- <div *ngIf="!isBrowser" class="ssr-placeholder">
     <p>Loading calendar...</p>
-  </div>
+  </div> -->
 
   <!-- Event Details Popup -->
   <div class="event-popup" *ngIf="selectedEvent" (click)="closeEventPopup()">
@@ -109,6 +112,7 @@
         <button type="button" class="close-btn" (click)="closeEventPopup()">&times;</button>
       </div>
       <div class="event-details">
+         <p>🆔 <strong>Event ID:</strong> {{ selectedEvent.id }}</p>
         <p>🎤 <strong>Artist:</strong> {{ selectedEvent.title }}</p>
         <p>🗓️ <strong>Starts:</strong> {{ selectedEvent.start | date: "full" }}</p>
         <p *ngIf="selectedEvent.end">🗓️ <strong>Ends:</strong> {{ selectedEvent.end | date: 'full' }}</p>
@@ -149,35 +153,42 @@
         </div>
 
         <div class="form-body">
+          <div class="form-row" *ngIf="isEditMode && newEvent.source === 'zoho'">
+             <div class="form-group full-width">
+               <label for="eventName">Id<span class="compulsory-field">*</span></label>
+               <input type="text" id="id" [(ngModel)]="newEvent.id" name="id" readonly>
+             </div>
+          </div>
           <div class="form-row">
              <div class="form-group full-width">
-               <label for="eventName">Event Name *</label>
+               <label for="eventName">Event Name <span class="compulsory-field">*</span></label>
                <input type="text" id="eventName" [(ngModel)]="newEvent.eventName" name="eventName" placeholder="Enter the name of the event" required>
              </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label for="startDate">Start Date *</label>
+              <label for="startDate">Start Date <span class="compulsory-field">*</span></label>
               <input type="date" id="startDate" [(ngModel)]="newEvent.startDate" name="startDate" required>
             </div>
             <div class="form-group">
-              <label for="startTime">Start Time *</label>
+              <label for="startTime">Start Time <span class="compulsory-field">*</span></label>
               <input type="time" id="startTime" [(ngModel)]="newEvent.startTime" name="startTime" required>
+            </div>
+            <div class="form-group">
+              <label for="endTime">End Time <span class="compulsory-field">*</span></label>
+              <input type="time" id="endTime" [(ngModel)]="newEvent.endTime" name="endTime" required>
             </div>
           </div>
            <div class="form-row">
             <div class="form-group">
-              <label for="endDate">End Date *</label>
-              <input type="date" id="endDate" [(ngModel)]="newEvent.endDate" name="endDate" required>
+              <label for="endDate">End Date </label>
+              <input type="date" id="endDate" [(ngModel)]="newEvent.endDate" name="endDate" >
             </div>
-            <div class="form-group">
-              <label for="endTime">End Time *</label>
-              <input type="time" id="endTime" [(ngModel)]="newEvent.endTime" name="endTime" required>
-            </div>
+            
           </div>
           <div class="form-row">
             <div class="form-group full-width">
-              <label for="artistName">Artist Name *</label>
+              <label for="artistName">Artist Name <span class="compulsory-field">*</span></label>
                <select id="artistName" name="artistName" [(ngModel)]="newEvent.artistName" required>
                  <option value="" disabled>Select Artist</option>
                  <option *ngFor="let artist of allArtists" [value]="artist.name">{{ artist.name }}</option>
@@ -187,7 +198,7 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="artistType">Artist Type *</label>
+              <label for="artistType">Artist Type <span class="compulsory-field">*</span></label>
               <select id="artistType" [(ngModel)]="newEvent.artistType" name="artistType" required>
                 <option value="" disabled>Select Artist Type</option>
                 <option value="Management & Booking">Management & Booking</option>
@@ -196,13 +207,13 @@
               </select>
             </div>
              <div class="form-group">
-              <label for="artistFee">Artist Fee *</label>
-              <input type="number" id="artistFee" [(ngModel)]="newEvent.artistFee" name="artistFee" placeholder="Enter artist fee" required>
+              <label for="artistFee">Artist Fee </label>
+              <input type="number" id="artistFee" [(ngModel)]="newEvent.artistFee" name="artistFee" placeholder="Enter artist fee" >
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label for="status">Status *</label>
+              <label for="status">Status <span class="compulsory-field">*</span></label>
               <select id="event-status" class="form-control" [(ngModel)]="newEvent.status" name="status" required>
                 <option value="" disabled>Select Status</option>
                 <option *ngFor="let status of availableStatuses" [value]="status._id"
@@ -215,15 +226,15 @@
 
           <div class="form-row">
             <div class="form-group">
-                <label for="venue">Venue *</label>
+                <label for="venue">Venue <span class="compulsory-field">*</span></label>
                 <select id="venue" name="venue" [(ngModel)]="newEvent.venue" (change)="onVenueChange()" required>
                   <option value="" disabled>Select Venue</option>
                   <option *ngFor="let venue of allVenues" [value]="venue.name">{{ venue.name }}</option>
                 </select>
             </div>
             <div class="form-group">
-              <label for="city">City *</label>
-               <input type="text" id="city" name="city" [(ngModel)]="newEvent.city" required readonly>
+              <label for="city">City <span class="compulsory-field">*</span></label>
+               <input type="text" id="city" name="city" [(ngModel)]="newEvent.city" required >
             </div>
           </div>
           <div class="form-section">
@@ -231,7 +242,7 @@
             <div class="form-row">
               <div class="form-group full-width">
                 <label for="promoterName">Promoter Name </label>
-                  <input type="text" id="promoterName" [(ngModel)]="newEvent.promoterName" name="promoterName"
+                 <input type="text" id="promoterName" [(ngModel)]="newEvent.promoterName" name="promoterName"
                   placeholder="Enter promoter name" >
               </div>
             </div>
@@ -247,6 +258,7 @@
                 <input type="email" id="promoterEmail" [(ngModel)]="newEvent.promoterEmail" name="promoterEmail"
                   placeholder="Enter promoter email" >
               </div>
+                <input type="text" id="source" [(ngModel)]="newEvent.source" name="source" hidden>
             </div>
           </div>
         </div>

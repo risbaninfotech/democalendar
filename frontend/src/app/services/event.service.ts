@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap  } from 'rxjs';
 import { format, parseISO } from 'date-fns';
 
 /**
@@ -24,6 +24,7 @@ export interface EventData {
   promoterName: string;
   promoterPhone: string;
   promoterEmail: string;
+  source: string;
 }
 
 
@@ -79,10 +80,14 @@ export class EventService {
    */
 
   getZohoMasterData(): Observable<ApiResponse<ZohoMasterData>> {
-    return this.http.get<ApiResponse<ZohoMasterData>>(`${this.apiUrl}/zoho/master`, {
-      withCredentials: true,
-    });
-  }
+  return this.http.get<ApiResponse<ZohoMasterData>>(`${this.apiUrl}/zoho/master`, {
+    withCredentials: true,
+  }).pipe(
+    tap(response => {
+      console.log('Zoho Master Data Response:', response);
+    })
+  );
+}
   
   getCalendarEvents(): Observable<any[]> {
     return this.http
@@ -113,11 +118,12 @@ export class EventService {
                   promoterPhone: event.promoter_phone,
                   promoterEmail: event.promoter_email,
                   status: event?.status?.name || 'Unknown',
-                  source: event.source,
+                  statusId: event?.status?._id,
+                  source: event?.source,
                   // Extract date/time parts for form population
-                  startDate: this.extractLocalDate(event.start_date),
+                  startDate: this.extractLocalDate(event.start_time),
                   startTime: this.extractLocalTime(event.start_time),
-                  endDate: this.extractLocalDate(event.end_date),
+                  endDate: this.extractLocalDate(event.end_time),
                   endTime: this.extractLocalTime(event.end_time),
                 },
               };
@@ -294,9 +300,17 @@ export class EventService {
    * @param timeStr - The time part (e.g., "20:00:00").
    * @returns A full ISO date string.
    */
-  private combineToISOString(dateStr: string, timeStr: string): string {
+  // private combineToISOString(dateStr: string, timeStr: string): string {
+  //   if (!dateStr || !timeStr) return '';
+  //   return new Date(`${dateStr}T${timeStr}`).toISOString();
+  // }
+
+private combineToISOString(dateStr: string, timeStr: string): string {
     if (!dateStr || !timeStr) return '';
-    return new Date(`${dateStr}T${timeStr}`).toISOString();
+    // Append 'Z' to the combined string to specify the time is in UTC.
+    // This prevents the browser's local timezone from being applied.
+    const timeWithSeconds = timeStr.length === 5 ? `${timeStr}:00` : timeStr;
+    return new Date(`${dateStr}T${timeWithSeconds}Z`).toISOString();
   }
 
   /**
@@ -308,6 +322,8 @@ export class EventService {
     const payload: any = {};
 
     // Map properties from frontend name to backend name
+    if(eventData.id !==undefined)
+      payload._id = eventData.id
     if (eventData.eventName !== undefined)
       payload.event_name = eventData.eventName;
     if (eventData.artistName !== undefined)
@@ -325,7 +341,10 @@ export class EventService {
       payload.promoter_phone = eventData.promoterPhone;
     if (eventData.promoterEmail !== undefined)
       payload.promoter_email = eventData.promoterEmail;
-
+    if(eventData.source !==undefined)
+      payload.source = eventData.source || 'mongo';
+    // if(eventData.backgroundColor !==undefined)
+    //   payload.color = eventData.backgroundColor;
     // Handle the new date/time schema
     if (eventData.startDate) {
       payload.start_date = eventData.startDate;
@@ -336,12 +355,14 @@ export class EventService {
         );
       }
     }
+    
+    const effectiveEndDate = eventData.endDate || eventData.startDate;
 
-    if (eventData.endDate) {
-      payload.end_date = eventData.endDate;
+    if (effectiveEndDate) {
+      payload.end_date = effectiveEndDate;
       if (eventData.endTime) {
         payload.end_time = this.combineToISOString(
-          eventData.endDate,
+          effectiveEndDate,
           eventData.endTime
         );
       }
