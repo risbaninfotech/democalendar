@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const BACKEND_PORT = process.env.BACKEND_PORT || 3100;
+const BACKEND_PORT = process.env.BACKEND_PORT || 3000;
 const BACKEND_IP = process.env.BACKEND_IP || 'localhost';
 const FRONTEND_PORT = process.env.FRONTEND_PORT || 4200;
 const FRONTEND_IP = process.env.FRONTEND_IP || 'localhost';
@@ -310,6 +310,72 @@ const fetchZohoCities = async (accessToken, apiDomain) => {
   }
 };
 
+// Function to create a task in Zoho CRM with event details
+const createZohoTask = async (accessToken, apiDomain, event, isNew) => {
+  var taskData = {};
+  if(isNew){
+    taskData = {
+      Subject: `Create New Event: ${event.event_name}`,
+      Due_Date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      Description: ': : : : Event details : : : : \n' +
+        'Event Name: ' + event.event_name + '\n\n' +
+        'Start Date: ' + event.start_date.toISOString().split('T')[0] + '\n' +
+        'Start Time: ' + event.start_time.toISOString().split('T')[1].split('.')[0] + '\n\n' +
+        'End Date: ' + event.end_date.toISOString().split('T')[0] + '\n' +
+        'End Time: ' + event.end_time.toISOString().split('T')[1].split('.')[0] + '\n\n' +
+        'Artist Name: ' + event.artist_name + '\n' +
+        'Artist Type: ' + event.artist_type + '\n' +
+        'Artist Amount: ' + event.artist_amount + '\n\n' +
+        'Venue: ' + event.venue + '\n' +
+        'City: ' + event.city + '\n\n' +
+        'Promoter Name: ' + event.promoter_name + '\n' +
+        'Promoter Phone: ' + event.promoter_phone + '\n' +
+        'Promoter Email: ' + event.promoter_email,
+      Priority: 'Alto',
+      Status: 'No iniciado',
+    }
+  } else {
+    taskData = {
+      Subject: `Update Event: ${event.event_name}`,
+      Due_Date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      What_Id: {
+        id: event._id,
+        name: event.event_name
+      },
+      Description: ': : : : Event details : : : : \n' +
+        'Event Name: ' + event.event_name + '\n\n' +
+        'Start Date: ' + event.start_date + '\n' +
+        'Start Time: ' + event.start_time + '\n\n' +
+        'End Date: ' + event.end_date + '\n' +
+        'End Time: ' + event.end_time + '\n\n' +
+        'Artist Name: ' + event.artist_name + '\n' +
+        'Artist Type: ' + event.artist_type + '\n' +
+        'Artist Amount: ' + event.artist_amount + '\n\n' +
+        'Venue: ' + event.venue + '\n' +
+        'City: ' + event.city + '\n\n' +
+        'Promoter Name: ' + event.promoter_name + '\n' +
+        'Promoter Phone: ' + event.promoter_phone + '\n' +
+        'Promoter Email: ' + event.promoter_email,
+      Priority: 'Alto',
+      Status: 'No iniciado',
+      $se_module: 'Deals'
+    }
+  }
+  try {
+    const response = await axios.post(`${apiDomain}/crm/v8/Tasks`, {
+      data: [taskData]
+    }, {
+      headers: {
+        'Authorization': `Zoho-oauthtoken ${accessToken}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating task in Zoho CRM:', error.response ? error.response.data : error.message);
+    throw new Error('Failed to create task in Zoho CRM');
+  }
+};
+
 
 
 
@@ -448,6 +514,12 @@ app.post('/api/event', isAuthenticated, async (req, res) => {
   const newEvent = new Event(req.body);
   try {
     const savedEvent = await newEvent.save();
+    const access_token = req.session.zohoTokens.access_token;
+    const apiDomain = req.session.zohoTokens.api_domain || ZOHO_API_URL;
+    if (access_token && apiDomain) { 
+      const createTaskResponse = await createZohoTask(access_token, apiDomain, savedEvent, true);
+      console.log('Task created in Zoho CRM:', createTaskResponse);
+    }
     res.status(200).json({
       code: 200,
       message: 'Event created successfully',
@@ -505,16 +577,33 @@ app.get('/api/event/:id', isAuthenticated, async (req, res) => {
 
 app.patch('/api/event/:id', isAuthenticated, async (req, res) => {
   try {
-    const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedEvent) {
-      return res.status(404).json({
-        code: 404,
-        message: 'Event not found'
-      });
+    if (req.body.source === 'zoho') {
+      const access_token = req.session.zohoTokens.access_token;
+      const apiDomain = req.session.zohoTokens.api_domain || ZOHO_API_URL;
+      if (access_token && apiDomain && req.body.source === 'zoho') {
+        var createTaskResponse = await createZohoTask(access_token, apiDomain, req.body, false);
+        console.log('Task created in Zoho CRM:', createTaskResponse);
+      }
+      if (createTaskResponse.data[0].code !== 'SUCCESS') {
+        return res.status(404).json({
+          code: 404,
+          message: 'Task to update could not be created in Zoho CRM',
+          error: createTaskResponse.data[0].message
+        });
+      }
+      var msg = 'Task to update event created successfully in Zoho CRM';
+    } else {
+      var updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      if (!updatedEvent) {
+        return res.status(404).json({
+          code: 404,
+          message: 'Event not found'
+        });
+      }
     }
     res.status(200).json({
       code: 200,
-      message: 'Event updated successfully',
+      message: msg || 'Event updated successfully',
       data: updatedEvent
     });
   } catch (error) {

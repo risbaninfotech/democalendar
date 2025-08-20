@@ -14,8 +14,7 @@ const eventSchema = new Schema({
     },
     end_date: { 
         type: Date,
-        min: () => Date.now(),
-        required: true
+        min: () => Date.now()
     },
     end_time: { 
         type: Date, 
@@ -41,8 +40,7 @@ const eventSchema = new Schema({
         type: String, 
     },
     artist_amount: { 
-        type: Number,
-        required: true 
+        type: Number
     },
     promoter_name: { 
         type: String, 
