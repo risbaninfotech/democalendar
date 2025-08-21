@@ -680,7 +680,7 @@ export class CalendarComponent implements AfterViewInit {
         console.error('Error loading events:', error);
         this.notificationService.error(
           'Failed to Load Events',
-          'Unable to load calendar events. Please refresh the page and try again.'
+          'There was an error fetching all events. Kindly check and contact your Zoho admin for necessary permissions.'
         );
         this.isCalendarLoading = false;
       },
