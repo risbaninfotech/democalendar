@@ -149,7 +149,7 @@ const fetchZohoEvents = async (accessToken, apiDomain, params = {}) => {
       'Authorization': `Zoho-oauthtoken ${accessToken}`
     },
     params: {
-      fields: 'Deal_Name,Fecha_Inicio_Evento,Fecha_Fin_Evento,Artista,Ciudad,Recinto,Cach,Account_Name,Stage',
+      fields: 'ID_proyecto,Deal_Name,Fecha_Inicio_Evento,Fecha_Fin_Evento,Artista,Ciudad,Recinto,Cach,Account_Name,Stage',
       per_page: 200,
       criteria: criteria,
       // Add criteria for date range if fetching for a specific month
@@ -158,6 +158,7 @@ const fetchZohoEvents = async (accessToken, apiDomain, params = {}) => {
   });
 
   const list = response.data.data || [];
+
   // fetch more info using list.account_name.id and add it to the response
   const unresolvedEvents = list.map(async item => {
     
@@ -210,6 +211,7 @@ const fetchZohoEvents = async (accessToken, apiDomain, params = {}) => {
     // Return the formatted event object
     let processedEvent = {
       _id: item.id,
+      zoho_id: item.ID_proyecto,
       start_date: item.Fecha_Inicio_Evento,
       start_time: item.Fecha_Inicio_Evento,
       end_date: item.Fecha_Fin_Evento,
