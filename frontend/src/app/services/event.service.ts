@@ -310,7 +310,7 @@ private combineToISOString(dateStr: string, timeStr: string): string {
     // Append 'Z' to the combined string to specify the time is in UTC.
     // This prevents the browser's local timezone from being applied.
     const timeWithSeconds = timeStr.length === 5 ? `${timeStr}:00` : timeStr;
-    return new Date(`${dateStr}T${timeWithSeconds}Z`).toISOString();
+    return new Date(`${dateStr}T${timeWithSeconds}`).toISOString();
   }
 
   /**

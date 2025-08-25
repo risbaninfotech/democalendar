@@ -18,7 +18,7 @@
         <div class="calendar-view">{{ currentViewName }} View</div>
       </div>
 
-      
+
     </div>
 
     <div class="toolbar-bottom">
@@ -112,7 +112,7 @@
         <button type="button" class="close-btn" (click)="closeEventPopup()">&times;</button>
       </div>
       <div class="event-details">
-         <p>🆔 <strong>Event ID:</strong> {{ selectedEvent.id }}</p>
+        <p>🆔 <strong>Event ID:</strong> {{ selectedEvent.id }}</p>
         <p>🎤 <strong>Artist:</strong> {{ selectedEvent.title }}</p>
         <p>🗓️ <strong>Starts:</strong> {{ selectedEvent.start | date: "full" }}</p>
         <p *ngIf="selectedEvent.end">🗓️ <strong>Ends:</strong> {{ selectedEvent.end | date: 'full' }}</p>
@@ -121,7 +121,14 @@
           <span class="status-dot" [style.backgroundColor]="selectedEvent?.color || '#908081'"></span>
           <span>{{ selectedEvent.extendedProps?.status || 'Not Set' }}</span>
         </div>
-        <p>🎭 <strong>Artist Type:</strong> {{ selectedEvent.extendedProps?.artistType }}</p>
+        <p>🎭 <strong>Artist Type:</strong> <ng-container
+            *ngIf="selectedEvent.extendedProps?.artistType === 'Access Denied'; else showTypes">
+            <i style="color: #c7c7c7;">Access Denied</i>
+          </ng-container>
+          <ng-template #showTypes>
+            {{ selectedEvent.extendedProps?.artistType }}
+          </ng-template>
+        </p>
         <p>📍 <strong>City:</strong> {{ selectedEvent.extendedProps?.city }}
         </p>
         <p>🏟️ <strong>Venue:</strong> {{ selectedEvent.extendedProps?.venue }}</p>
@@ -129,8 +136,27 @@
         <hr>
         <h4>Promoter Details</h4>
         <p>👤 <strong>Name:</strong> {{ selectedEvent.extendedProps?.promoterName }}</p>
-        <p>📞 <strong>Phone:</strong> {{ selectedEvent.extendedProps?.promoterPhone }}</p>
-        <p>📧 <strong>Email:</strong> {{ selectedEvent.extendedProps?.promoterEmail }}</p>
+        <!-- <p>📞 <strong>Phone:</strong> {{ selectedEvent.extendedProps?.promoterPhone }}</p>
+        <p>📧 <strong>Email:</strong> {{ selectedEvent.extendedProps?.promoterEmail }}</p> -->
+        <p>
+          📞 <strong>Phone:</strong>
+          <ng-container *ngIf="selectedEvent.extendedProps?.promoterPhone === 'Access Denied'; else showPhone">
+            <i style="color: #c7c7c7;">Access Denied</i>
+          </ng-container>
+          <ng-template #showPhone>
+            {{ selectedEvent.extendedProps?.promoterPhone }}
+          </ng-template>
+        </p>
+        <p>
+          📧 <strong>Email:</strong>
+          <ng-container *ngIf="selectedEvent.extendedProps?.promoterEmail === 'Access Denied'; else showEmail">
+            <i style="color: #c7c7c7;">Access Denied</i>
+          </ng-container>
+          <ng-template #showEmail>
+            {{ selectedEvent.extendedProps?.promoterEmail }}
+          </ng-template>
+        </p>
+
 
 
       </div>
@@ -154,16 +180,17 @@
 
         <div class="form-body">
           <div class="form-row" *ngIf="isEditMode && newEvent.source === 'zoho'">
-             <div class="form-group full-width">
-               <label for="eventName">Id<span class="compulsory-field">*</span></label>
-               <input type="text" id="id" [(ngModel)]="newEvent.id" name="id" readonly>
-             </div>
+            <div class="form-group full-width">
+              <label for="eventName">Id<span class="compulsory-field">*</span></label>
+              <input type="text" id="id" [(ngModel)]="newEvent.id" name="id" readonly>
+            </div>
           </div>
           <div class="form-row">
-             <div class="form-group full-width">
-               <label for="eventName">Event Name <span class="compulsory-field">*</span></label>
-               <input type="text" id="eventName" [(ngModel)]="newEvent.eventName" name="eventName" placeholder="Enter the name of the event" required>
-             </div>
+            <div class="form-group full-width">
+              <label for="eventName">Event Name <span class="compulsory-field">*</span></label>
+              <input type="text" id="eventName" [(ngModel)]="newEvent.eventName" name="eventName"
+                placeholder="Enter the name of the event" required>
+            </div>
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -176,23 +203,23 @@
             </div>
             <div class="form-group">
               <label for="endTime">End Time <span class="compulsory-field">*</span></label>
-              <input type="time" id="endTime" [(ngModel)]="newEvent.endTime" name="endTime" required>
+              <input type="time" id="endTime" [(ngModel)]="newEvent.endTime" name="endTime">
             </div>
           </div>
-           <div class="form-row">
+          <div class="form-row">
             <div class="form-group">
               <label for="endDate">End Date </label>
-              <input type="date" id="endDate" [(ngModel)]="newEvent.endDate" name="endDate" >
+              <input type="date" id="endDate" [(ngModel)]="newEvent.endDate" name="endDate">
             </div>
-            
+
           </div>
           <div class="form-row">
             <div class="form-group full-width">
               <label for="artistName">Artist Name <span class="compulsory-field">*</span></label>
-               <select id="artistName" name="artistName" [(ngModel)]="newEvent.artistName" required>
-                 <option value="" disabled>Select Artist</option>
-                 <option *ngFor="let artist of allArtists" [value]="artist.name">{{ artist.name }}</option>
-               </select>
+              <select id="artistName" name="artistName" [(ngModel)]="newEvent.artistName" required>
+                <option value="" disabled>Select Artist</option>
+                <option *ngFor="let artist of allArtists" [value]="artist.name">{{ artist.name }}</option>
+              </select>
             </div>
           </div>
 
@@ -206,9 +233,10 @@
                 <option value="Promotor">Promotor</option>
               </select>
             </div>
-             <div class="form-group">
+            <div class="form-group">
               <label for="artistFee">Artist Fee </label>
-              <input type="number" id="artistFee" [(ngModel)]="newEvent.artistFee" name="artistFee" placeholder="Enter artist fee" >
+              <input type="number" id="artistFee" [(ngModel)]="newEvent.artistFee" name="artistFee"
+                placeholder="Enter artist fee">
             </div>
           </div>
           <div class="form-row">
@@ -226,15 +254,15 @@
 
           <div class="form-row">
             <div class="form-group">
-                <label for="venue">Venue <span class="compulsory-field">*</span></label>
-                <select id="venue" name="venue" [(ngModel)]="newEvent.venue" (change)="onVenueChange()" required>
-                  <option value="" disabled>Select Venue</option>
-                  <option *ngFor="let venue of allVenues" [value]="venue.name">{{ venue.name }}</option>
-                </select>
+              <label for="venue">Venue <span class="compulsory-field">*</span></label>
+              <select id="venue" name="venue" [(ngModel)]="newEvent.venue" (change)="onVenueChange()" required>
+                <option value="" disabled>Select Venue</option>
+                <option *ngFor="let venue of allVenues" [value]="venue.name">{{ venue.name }}</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="city">City <span class="compulsory-field">*</span></label>
-               <input type="text" id="city" name="city" [(ngModel)]="newEvent.city" required >
+              <input type="text" id="city" name="city" [(ngModel)]="newEvent.city" required>
             </div>
           </div>
           <div class="form-section">
@@ -242,8 +270,8 @@
             <div class="form-row">
               <div class="form-group full-width">
                 <label for="promoterName">Promoter Name </label>
-                 <input type="text" id="promoterName" [(ngModel)]="newEvent.promoterName" name="promoterName"
-                  placeholder="Enter promoter name" >
+                <input type="text" id="promoterName" [(ngModel)]="newEvent.promoterName" name="promoterName"
+                  placeholder="Enter promoter name">
               </div>
             </div>
 
@@ -251,14 +279,14 @@
               <div class="form-group">
                 <label for="promoterPhone">Promoter Phone </label>
                 <input type="tel" id="promoterPhone" [(ngModel)]="newEvent.promoterPhone" name="promoterPhone"
-                  placeholder="Enter promoter phone" >
+                  placeholder="Enter promoter phone">
               </div>
               <div class="form-group">
                 <label for="promoterEmail">Promoter Email </label>
                 <input type="email" id="promoterEmail" [(ngModel)]="newEvent.promoterEmail" name="promoterEmail"
-                  placeholder="Enter promoter email" >
+                  placeholder="Enter promoter email">
               </div>
-                <input type="text" id="source" [(ngModel)]="newEvent.source" name="source" hidden>
+              <input type="text" id="source" [(ngModel)]="newEvent.source" name="source" hidden>
             </div>
           </div>
         </div>
