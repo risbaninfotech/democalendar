@@ -162,8 +162,8 @@ const fetchZohoEvents = async (accessToken, apiDomain, params = {}) => {
   const unresolvedEvents = list.map(async item => {
     
     // API call to fetch Artist type from Artista module using item.Artista.id
+    var artistType = 'Access Denied';
     try {
-      var artistType = 'Access Denied';
       const artistTypeResponse = await axios.get(`${apiDomain}/crm/v8/Artistas/${item.Artista.id}`, {
         headers: {
           'Authorization': `Zoho-oauthtoken ${accessToken}`
