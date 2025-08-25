@@ -123,7 +123,7 @@
         </div>
         <p>🎭 <strong>Artist Type:</strong> <ng-container
             *ngIf="selectedEvent.extendedProps?.artistType === 'Access Denied'; else showTypes">
-            <i style="color: #c7c7c7;">Access Denied</i>
+            <i style="color: #c7c7c7;"> &nbsp;Access Denied</i>
           </ng-container>
           <ng-template #showTypes>
             {{ selectedEvent.extendedProps?.artistType }}
@@ -141,7 +141,7 @@
         <p>
           📞 <strong>Phone:</strong>
           <ng-container *ngIf="selectedEvent.extendedProps?.promoterPhone === 'Access Denied'; else showPhone">
-            <i style="color: #c7c7c7;">Access Denied</i>
+            <i style="color: #c7c7c7;"> &nbsp;Access Denied</i>
           </ng-container>
           <ng-template #showPhone>
             {{ selectedEvent.extendedProps?.promoterPhone }}
@@ -150,7 +150,7 @@
         <p>
           📧 <strong>Email:</strong>
           <ng-container *ngIf="selectedEvent.extendedProps?.promoterEmail === 'Access Denied'; else showEmail">
-            <i style="color: #c7c7c7;">Access Denied</i>
+            <i style="color: #c7c7c7;"> &nbsp;Access Denied</i>
           </ng-container>
           <ng-template #showEmail>
             {{ selectedEvent.extendedProps?.promoterEmail }}

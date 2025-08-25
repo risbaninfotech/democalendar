@@ -535,7 +535,7 @@ export class CalendarComponent implements AfterViewInit {
     }
     // for allowing users not to enter back date event
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0); 
     const eventStartDate = new Date(this.newEvent.startDate);
 
     const userTimezoneOffset = eventStartDate.getTimezoneOffset() * 60000;
