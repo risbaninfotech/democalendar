@@ -160,29 +160,39 @@ const fetchZohoEvents = async (accessToken, apiDomain, params = {}) => {
   const list = response.data.data || [];
   // fetch more info using list.account_name.id and add it to the response
   const unresolvedEvents = list.map(async item => {
-
+    
     // API call to fetch Artist type from Artista module using item.Artista.id
-    const artistTypeResponse = await axios.get(`${apiDomain}/crm/v8/Artistas/${item.Artista.id}`, {
-      headers: {
-        'Authorization': `Zoho-oauthtoken ${accessToken}`
-      },
-      params: {
-        fields: 'Tipo_de_Eventos'
-      }
-    });
-    const artistType = artistTypeResponse.data.data[0].Tipo_de_Eventos || 'Unknown'; 
+    try {
+      var artistType = 'Access Denied';
+      const artistTypeResponse = await axios.get(`${apiDomain}/crm/v8/Artistas/${item.Artista.id}`, {
+        headers: {
+          'Authorization': `Zoho-oauthtoken ${accessToken}`
+        },
+        params: {
+          fields: 'Tipo_de_Eventos'
+        }
+      });
+      artistType = artistTypeResponse.data.data[0].Tipo_de_Eventos || 'Unknown';
+    } catch (error) {
+      console.error('Error fetching artist type:', error.response ? error.response.data : error.message);
+    }
 
     // API call to fetch Promoter phone and email from Account_Name module using item.Account_Name.id
-    const promoterResponse = await axios.get(`${apiDomain}/crm/v8/Accounts/${item.Account_Name.id}`, {
-      headers: {
-        'Authorization': `Zoho-oauthtoken ${accessToken}`
-      },
-      params: {
-        fields: 'Tel_fono_Contratacion,Correo_Contratacion'
-      }
-    });
-    const promoterPhone = promoterResponse.data.data[0].Tel_fono_Contratacion || 'Unknown';
-    const promoterEmail = promoterResponse.data.data[0].Correo_Contratacion || 'Unknown';
+    var promoterPhone = 'Access Denied', promoterEmail = 'Access Denied';
+    try {
+      const promoterResponse = await axios.get(`${apiDomain}/crm/v8/Accounts/${item.Account_Name.id}`, {
+        headers: {
+          'Authorization': `Zoho-oauthtoken ${accessToken}`
+        },
+        params: {
+          fields: 'Tel_fono_Contratacion,Correo_Contratacion'
+        }
+      });
+      promoterPhone = promoterResponse.data.data[0].Tel_fono_Contratacion || 'Unknown';
+      promoterEmail = promoterResponse.data.data[0].Correo_Contratacion || 'Unknown';
+    } catch (error) {
+      console.error('Error fetching promoter details:', error.response ? error.response.data : error.message); 
+    }
 
     // Fetch statuses from Status model
     // check if item.Stage exists in Status collection
@@ -198,7 +208,7 @@ const fetchZohoEvents = async (accessToken, apiDomain, params = {}) => {
     }
 
     // Return the formatted event object
-    return{
+    let processedEvent = {
       _id: item.id,
       start_date: item.Fecha_Inicio_Evento,
       start_time: item.Fecha_Inicio_Evento,
@@ -209,13 +219,14 @@ const fetchZohoEvents = async (accessToken, apiDomain, params = {}) => {
       artist_type: artistType,
       city: item.Ciudad,
       venue: item.Recinto.name,
-      artist_amount: item.Cach,
+      artist_amount: item.Cach || 0,
       promoter_name: item.Account_Name.name,
       promoter_phone: promoterPhone,
       promoter_email: promoterEmail,
       source: "zoho",
       status: statusObj
     };
+    return processedEvent;
   });
   // Wait for all promises to resolve
   const events = await Promise.all(unresolvedEvents);
